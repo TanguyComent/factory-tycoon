@@ -4,11 +4,11 @@ local _services = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts
 local RunService = _services.RunService
 local Workspace = _services.Workspace
 local Building = TS.import(script, script.Parent, "Building").Building
-local _Settings = TS.import(script, script.Parent, "Settings")
+local _Settings = TS.import(script, script.Parent.Parent, "Settings")
 local floorSize = _Settings.floorSize
 local gridSize = _Settings.gridSize
 local plotDefaultHeight = _Settings.plotDefaultHeight
-local currentFloor = TS.import(script, script.Parent, "params").currentFloor
+local currentFloor = TS.import(script, script.Parent.Parent, "Params").currentFloor
 local ClassicBuilding
 do
 	local super = Building
@@ -26,7 +26,6 @@ do
 	function ClassicBuilding:constructor(model)
 		super.constructor(self, model)
 		self.moveDuration = 0.1
-		self.isMoving = false
 		self.mouse = self:Player():GetMouse()
 		self.position = model:GetPivot().Position
 		self.rayParams = RaycastParams.new()

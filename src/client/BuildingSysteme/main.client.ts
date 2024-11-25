@@ -1,7 +1,7 @@
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services"
 import { Plot } from "../../shared/plot"
-import { Building } from "./Building"
-import { ClassicBuilding } from "./ClassicBuildings"
+import { Building } from "./Class/Building"
+import { ClassicBuilding } from "./Class/ClassicBuildings"
 
 // Constants
 const P = Players.LocalPlayer
@@ -32,3 +32,13 @@ function updateBuildingPointer(model: Model){
 // Plot constructor is already yeilding until the player chose a plot
 const plot = new Plot(P)
 
+
+
+//Connections
+constructionValue.Changed.Connect(function(newValue){
+    if(!newValue?.IsA("Model")){
+        throw "New construction value isnt a model."
+    }
+
+    updateBuildingPointer(newValue)
+})

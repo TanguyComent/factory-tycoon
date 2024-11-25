@@ -4,7 +4,7 @@ local _services = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts
 local Players = _services.Players
 local ReplicatedStorage = _services.ReplicatedStorage
 local Plot = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "plot").Plot
-local ClassicBuilding = TS.import(script, script.Parent, "ClassicBuildings").ClassicBuilding
+local ClassicBuilding = TS.import(script, script.Parent, "Class", "ClassicBuildings").ClassicBuilding
 -- Constants
 local P = Players.LocalPlayer
 --const buildButton = null
@@ -33,3 +33,14 @@ local function updateBuildingPointer(model)
 end
 -- Plot constructor is already yeilding until the player chose a plot
 local plot = Plot.new(P)
+--Connections
+constructionValue.Changed:Connect(function(newValue)
+	local _result_1 = newValue
+	if _result_1 ~= nil then
+		_result_1 = _result_1:IsA("Model")
+	end
+	if not _result_1 then
+		error("New construction value isnt a model.")
+	end
+	updateBuildingPointer(newValue)
+end)

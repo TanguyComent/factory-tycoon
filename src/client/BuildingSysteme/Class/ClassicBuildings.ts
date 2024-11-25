@@ -1,13 +1,12 @@
 import { RunService, Workspace } from "@rbxts/services";
 import { Building } from "./Building";
-import { floorSize, gridSize, plotDefaultHeight } from "./Settings";
-import { currentFloor } from "./params";
+import { floorSize, gridSize, plotDefaultHeight } from "../Settings";
+import { currentFloor } from "../Params";
 
 export class ClassicBuilding extends Building {
     
     public position: Vector3;
     private moveDuration = 0.1
-    public isMoving = false
     private rayParams: RaycastParams
     private mouse
 
