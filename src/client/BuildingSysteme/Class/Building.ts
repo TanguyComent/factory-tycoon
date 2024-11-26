@@ -4,8 +4,8 @@ import { rotateDuration, rotateForce } from "../Settings";
 export abstract class Building {
     protected model
     protected player
-    protected isRotating = false
     protected isMoving = false
+    private isRotating = false
     abstract position: Vector3 | undefined
 
     constructor(model: Model){

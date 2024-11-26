@@ -60,6 +60,19 @@ export class Plot{
         return math.abs(x) <= Plot.size / 2 && math.abs(z) <= Plot.size / 2
     }
 
+    public isModelInPlot(model: Model){
+        let orientaton, box = model.GetBoundingBox()
+        let position = model.GetPivot().Position
+        if(!this.isVectorInPLot(position)) return false
+
+        
+    }   
+
+    public playerCanBuildHere(player: Player, position: Vector3){
+        if (player != this.owner) return false
+        return this.isVectorInPLot(position)
+    }
+
     // Getters
 
     public getId(){
