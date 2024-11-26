@@ -7,7 +7,11 @@ local Plot = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "plot
 local ClassicBuilding = TS.import(script, script.Parent, "Class", "ClassicBuildings").ClassicBuilding
 -- Constants
 local P = Players.LocalPlayer
---const buildButton = null
+local _buildButton = P:FindFirstChild("PlayerGui")
+if _buildButton ~= nil then
+	_buildButton = _buildButton:FindFirstChild("BUILD GUI")
+end
+local buildButton = _buildButton
 --Building Pointer
 local _result = ReplicatedStorage:FindFirstChild("Constructions")
 if _result ~= nil then

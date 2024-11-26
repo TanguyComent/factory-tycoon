@@ -44,5 +44,5 @@ export abstract class Building {
         return this.isMoving || this.isRotating
     }
 
-    abstract updateTickPosition(): void;
+    abstract updateTickPosition(): void
 }

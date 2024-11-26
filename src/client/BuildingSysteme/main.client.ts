@@ -5,7 +5,7 @@ import { ClassicBuilding } from "./Class/ClassicBuildings"
 
 // Constants
 const P = Players.LocalPlayer
-//const buildButton = null
+const buildButton = P.FindFirstChild("PlayerGui")?.FindFirstChild("BUILD GUI")
 
 //Building Pointer
 const defaultConstruction: Model = ReplicatedStorage.FindFirstChild("Constructions")?.FindFirstChild("walls")?.FindFirstChild("Murs gris") as Model
