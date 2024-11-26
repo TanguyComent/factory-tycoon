@@ -58,6 +58,21 @@ do
 		local z = vector.Z - self.centerVector.Z
 		return math.abs(x) <= Plot.size / 2 and math.abs(z) <= Plot.size / 2
 	end
+	function Plot:isModelInPlot(model)
+		local cf, size = model:GetBoundingBox()
+		local position = cf.Position
+		local half = size / 2
+		-- The y position doesn't matter
+		local _vector3 = Vector3.new(half.X, 0, half.Z)
+		local positiveCorner = position + _vector3
+		local _vector3_1 = Vector3.new(-half.X, 0, -half.Z)
+		local negativeCorner = position + _vector3_1
+		-- If both opposites corners are on the plot, the box is in the plot
+		return self:isVectorInPLot(positiveCorner) and self:isVectorInPLot(negativeCorner)
+	end
+	function Plot:playerCanBuild(player)
+		return self.owner == player
+	end
 	function Plot:getId()
 		return self.id
 	end

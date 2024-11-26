@@ -1,5 +1,6 @@
-import { Players, RunService } from "@rbxts/services";
+import { Players, RunService, Workspace } from "@rbxts/services";
 import { rotateDuration, rotateForce } from "../Settings";
+import { Plot } from "shared/plot";
 
 export abstract class Building {
     protected model
@@ -16,12 +17,8 @@ export abstract class Building {
         }
     }
 
-    Model(){
-        return this.model;
-    }
-
-    Player(){
-        return this.player;
+    canBePlacedHere(plot: Plot){
+        return !this.isInMovement() && plot.isModelInPlot(this.model) && plot.playerCanBuild(this.player) && this.isFree()
     }
 
     rotate(){
@@ -44,5 +41,28 @@ export abstract class Building {
         return this.isMoving || this.isRotating
     }
 
+    isFree(){
+        let [cf, size] = this.model.GetBoundingBox()
+        
+        size = size.sub(new Vector3(0.01, 0.01, 0.01))
+
+        const params = new OverlapParams()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        params.AddToFilter(this.model)
+        const res = Workspace.GetPartBoundsInBox(cf, size, params)
+
+        return res.size() === 0
+    }
+
+    // Abstracts methodes
     abstract updateTickPosition(): void
+
+    // Getters
+    Model(){
+        return this.model;
+    }
+
+    Player(){
+        return this.player;
+    }
 }

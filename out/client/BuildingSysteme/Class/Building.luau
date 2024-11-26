@@ -3,6 +3,7 @@ local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("rbxts_incl
 local _services = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts_include", "node_modules", "@rbxts", "services")
 local Players = _services.Players
 local RunService = _services.RunService
+local Workspace = _services.Workspace
 local _Settings = TS.import(script, script.Parent.Parent, "Settings")
 local rotateDuration = _Settings.rotateDuration
 local rotateForce = _Settings.rotateForce
@@ -10,8 +11,8 @@ local Building
 do
 	Building = {}
 	function Building:constructor(model)
-		self.isRotating = false
 		self.isMoving = false
+		self.isRotating = false
 		self.model = model
 		self.player = Players.LocalPlayer
 		for _, child in self.model:GetChildren() do
@@ -20,11 +21,8 @@ do
 			end
 		end
 	end
-	function Building:Model()
-		return self.model
-	end
-	function Building:Player()
-		return self.player
+	function Building:canBePlacedHere(plot)
+		return not self:isInMovement() and plot:isModelInPlot(self.model) and plot:playerCanBuild(self.player) and self:isFree()
 	end
 	function Building:rotate()
 		local start = self.model:GetPivot().Position
@@ -42,6 +40,23 @@ do
 	end
 	function Building:isInMovement()
 		return self.isMoving or self.isRotating
+	end
+	function Building:isFree()
+		local cf, size = self.model:GetBoundingBox()
+		local _size = size
+		local _vector3 = Vector3.new(0.01, 0.01, 0.01)
+		size = _size - _vector3
+		local params = OverlapParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params:AddToFilter(self.model)
+		local res = Workspace:GetPartBoundsInBox(cf, size, params)
+		return #res == 0
+	end
+	function Building:Model()
+		return self.model
+	end
+	function Building:Player()
+		return self.player
 	end
 end
 return {

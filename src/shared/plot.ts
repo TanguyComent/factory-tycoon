@@ -61,16 +61,21 @@ export class Plot{
     }
 
     public isModelInPlot(model: Model){
-        let orientaton, box = model.GetBoundingBox()
-        let position = model.GetPivot().Position
-        if(!this.isVectorInPLot(position)) return false
+        const [cf, size] = model.GetBoundingBox()
+        const position = cf.Position
 
-        
+        const half = size.div(2)
+
+        // The y position doesn't matter
+        const positiveCorner = position.add(new Vector3(half.X, 0, half.Z))
+        const negativeCorner = position.add(new Vector3(-half.X, 0, -half.Z))
+
+        // If both opposites corners are on the plot, the box is in the plot
+        return this.isVectorInPLot(positiveCorner) && this.isVectorInPLot(negativeCorner)
     }   
 
-    public playerCanBuildHere(player: Player, position: Vector3){
-        if (player != this.owner) return false
-        return this.isVectorInPLot(position)
+    public playerCanBuild(player: Player){
+        return this.owner === player
     }
 
     // Getters
