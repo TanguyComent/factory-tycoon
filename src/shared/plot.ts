@@ -1,4 +1,4 @@
-import { ReplicatedStorage } from "@rbxts/services";
+import { ReplicatedStorage, Workspace } from "@rbxts/services";
 
 function findPlotIdByPlayer(player: Player): number{
     const R = ReplicatedStorage
@@ -36,6 +36,7 @@ export class Plot{
     private id
     private centerVector
     private owner
+    private floorZeroHeight
 
     constructor(owner: Player){
         this.owner = owner
@@ -49,6 +50,14 @@ export class Plot{
             this.centerVector = centerValue.Value
         }else{
             throw "No plot center finded, error"
+        }
+
+        const plotModel = Workspace.FindFirstChild("plot" + this.id)
+
+        if(plotModel && plotModel.IsA("Model")){
+            this.floorZeroHeight = 0
+        }else{
+            throw "No plot model finded, error"
         }
 
     }

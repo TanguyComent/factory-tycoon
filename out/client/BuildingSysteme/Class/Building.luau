@@ -2,11 +2,17 @@
 local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("RuntimeLib"))
 local _services = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts_include", "node_modules", "@rbxts", "services")
 local Players = _services.Players
+local ReplicatedStorage = _services.ReplicatedStorage
 local RunService = _services.RunService
 local Workspace = _services.Workspace
 local _Settings = TS.import(script, script.Parent.Parent, "Settings")
 local rotateDuration = _Settings.rotateDuration
 local rotateForce = _Settings.rotateForce
+local _result = ReplicatedStorage:FindFirstChild("RemoteFunctions")
+if _result ~= nil then
+	_result = _result:FindFirstChild("AskForBuildRequest")
+end
+local buildOnServerSide = _result
 local Building
 do
 	Building = {}
@@ -22,6 +28,7 @@ do
 		end
 	end
 	function Building:canBePlacedHere(plot)
+		print("isModelInPlot : " .. tostring(plot:isModelInPlot(self.model)) .. "; isFree : " .. tostring(self:isFree()))
 		return not self:isInMovement() and plot:isModelInPlot(self.model) and plot:playerCanBuild(self.player) and self:isFree()
 	end
 	function Building:rotate()
@@ -51,6 +58,12 @@ do
 		params:AddToFilter(self.model)
 		local res = Workspace:GetPartBoundsInBox(cf, size, params)
 		return #res == 0
+	end
+	function Building:build(plot)
+		if not self:canBePlacedHere(plot) then
+			return nil
+		end
+		buildOnServerSide:InvokeServer(self.model, self.model:GetPivot())
 	end
 	function Building:Model()
 		return self.model

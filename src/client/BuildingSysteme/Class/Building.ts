@@ -1,6 +1,8 @@
-import { Players, RunService, Workspace } from "@rbxts/services";
+import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
 import { rotateDuration, rotateForce } from "../Settings";
 import { Plot } from "shared/plot";
+
+const buildOnServerSide = ReplicatedStorage.FindFirstChild("RemoteFunctions")?.FindFirstChild("AskForBuildRequest") as RemoteFunction
 
 export abstract class Building {
     protected model
@@ -18,6 +20,7 @@ export abstract class Building {
     }
 
     canBePlacedHere(plot: Plot){
+        print("isModelInPlot : " + plot.isModelInPlot(this.model) + "; isFree : " + this.isFree())
         return !this.isInMovement() && plot.isModelInPlot(this.model) && plot.playerCanBuild(this.player) && this.isFree()
     }
 
@@ -52,6 +55,11 @@ export abstract class Building {
         const res = Workspace.GetPartBoundsInBox(cf, size, params)
 
         return res.size() === 0
+    }
+
+    build(plot: Plot){
+        if(!this.canBePlacedHere(plot)) return
+        buildOnServerSide.InvokeServer(this.model, this.model.GetPivot())
     }
 
     // Abstracts methodes

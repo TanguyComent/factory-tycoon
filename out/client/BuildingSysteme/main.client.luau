@@ -11,11 +11,11 @@ local ClassicBuilding = TS.import(script, script.Parent, "Class", "ClassicBuildi
 local P = Players.LocalPlayer
 local _result = P:WaitForChild("PlayerGui")
 if _result ~= nil then
-	_result = _result:FindFirstChild("Interface")
+	_result = _result:WaitForChild("Interface")
 	if _result ~= nil then
-		_result = _result:FindFirstChild("TopBar")
+		_result = _result:WaitForChild("TopBar")
 		if _result ~= nil then
-			_result = _result:FindFirstChild("BuildButton")
+			_result = _result:WaitForChild("BuildButton")
 		end
 	end
 end
@@ -71,9 +71,14 @@ local function updatePointerVisibility()
 		buildingPointer:Model().Parent = script
 	end
 end
+-- Update the build gui visiblity based on the build mode
 local function updateGuiVisibility()
 	buildGui.Enabled = inBuildMode
 end
+local function updateHighlightVisibility()
+	highlight.Enabled = inBuildMode
+end
+-- Update the highliht color
 local plot
 local function updateHighlightColor()
 	if buildingPointer:canBePlacedHere(plot) then
@@ -88,6 +93,7 @@ local function switchBuildMode()
 	inBuildMode = not inBuildMode
 	updatePointerVisibility()
 	updateGuiVisibility()
+	updateHighlightVisibility()
 	if inBuildMode then
 		-- The player is now building
 		RunService:BindToRenderStep("Build", 600, function()
@@ -101,8 +107,11 @@ local function switchBuildMode()
 end
 -- Plot constructor is already yeilding until the player chose a plot
 plot = Plot.new(P)
---Connections
+--Connections 
 buildButton.Activated:Connect(switchBuildMode)
+P:GetMouse().Button1Down:Connect(function()
+	buildingPointer:build(plot)
+end)
 constructionValue.Changed:Connect(function(newValue)
 	local _result_3 = newValue
 	if _result_3 ~= nil then

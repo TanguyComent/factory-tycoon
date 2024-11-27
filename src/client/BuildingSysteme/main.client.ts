@@ -5,7 +5,7 @@ import { ClassicBuilding } from "./Class/ClassicBuildings"
 
 // Constants
 const P = Players.LocalPlayer
-const buildButton = P.WaitForChild("PlayerGui")?.FindFirstChild("Interface")?.FindFirstChild("TopBar")?.FindFirstChild("BuildButton") as GuiButton
+const buildButton = P.WaitForChild("PlayerGui")?.WaitForChild("Interface")?.WaitForChild("TopBar")?.WaitForChild("BuildButton") as GuiButton
 const buildGui = P.FindFirstChild("PlayerGui")?.FindFirstChild("BUILD GUI") as ScreenGui
 
 if (!buildButton) throw "ERROR : Build button not finded"
@@ -54,10 +54,16 @@ function updatePointerVisibility(){
     }
 }
 
+// Update the build gui visiblity based on the build mode
 function updateGuiVisibility(){
     buildGui.Enabled = inBuildMode
 }
 
+function updateHighlightVisibility(){
+    highlight.Enabled = inBuildMode
+}
+
+// Update the highliht color
 function updateHighlightColor(){
     if(buildingPointer.canBePlacedHere(plot)){
         highlight.OutlineColor = Color3.fromRGB(5, 140, 5)
@@ -73,6 +79,7 @@ function switchBuildMode(){
 
     updatePointerVisibility()
     updateGuiVisibility()
+    updateHighlightVisibility()
 
     if(inBuildMode){
         // The player is now building
@@ -91,9 +98,11 @@ const plot = new Plot(P)
 
 
 
-//Connections
+//Connections 
 buildButton.Activated.Connect(switchBuildMode)
-
+P.GetMouse().Button1Down.Connect(function(){
+    buildingPointer.build(plot)
+})
 constructionValue.Changed.Connect(function(newValue){
     if(!newValue?.IsA("Model")){
         throw "New construction value isnt a model."

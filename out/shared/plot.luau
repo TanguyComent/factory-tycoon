@@ -1,6 +1,8 @@
 -- Compiled with roblox-ts v3.0.0
 local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("RuntimeLib"))
-local ReplicatedStorage = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts_include", "node_modules", "@rbxts", "services").ReplicatedStorage
+local _services = TS.import(script, game:GetService("ReplicatedStorage"), "rbxts_include", "node_modules", "@rbxts", "services")
+local ReplicatedStorage = _services.ReplicatedStorage
+local Workspace = _services.Workspace
 local function findPlotIdByPlayer(player)
 	local R = ReplicatedStorage
 	local plotOwners = R:FindFirstChild("PlotOwners")
@@ -51,6 +53,12 @@ do
 			self.centerVector = centerValue.Value
 		else
 			error("No plot center finded, error")
+		end
+		local plotModel = Workspace:FindFirstChild("plot" .. tostring(self.id))
+		if plotModel and plotModel:IsA("Model") then
+			self.floorZeroHeight = 0
+		else
+			error("No plot model finded, error")
 		end
 	end
 	function Plot:isVectorInPLot(vector)
