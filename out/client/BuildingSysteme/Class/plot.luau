@@ -54,11 +54,27 @@ do
 		else
 			error("No plot center finded, error")
 		end
-		local plotModel = Workspace:FindFirstChild("plot" .. tostring(self.id))
-		if plotModel and plotModel:IsA("Model") then
-			self.floorZeroHeight = 0
+		self.model = Workspace:FindFirstChild("plot" .. tostring(self.id))
+		if not self.model then
+			error("No plot model finded")
+		end
+		local _plotPart = self.model
+		if _plotPart ~= nil then
+			_plotPart = _plotPart:FindFirstChild("DefaultStuffs")
+			if _plotPart ~= nil then
+				_plotPart = _plotPart:FindFirstChild("Floors")
+				if _plotPart ~= nil then
+					_plotPart = _plotPart:FindFirstChild("00")
+				end
+			end
+		end
+		local plotPart = _plotPart
+		if plotPart and plotPart:IsA("Part") then
+			local plotDefaultY = plotPart.Position.Y
+			local halfY = plotPart.Size.Y / 2
+			self.floorZeroHeight = plotDefaultY + halfY
 		else
-			error("No plot model finded, error")
+			error("No plot part finded")
 		end
 	end
 	function Plot:isVectorInPLot(vector)
@@ -78,6 +94,33 @@ do
 		-- If both opposites corners are on the plot, the box is in the plot
 		return self:isVectorInPLot(positiveCorner) and self:isVectorInPLot(negativeCorner)
 	end
+	function Plot:isModelInAvaiblePlot(model, player)
+		if not self:playerCanBuild(player) or not self:isModelInPlot(model) then
+			return false
+		end
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Include
+		local _result = self.model:FindFirstChild("DefaultStuffs")
+		if _result ~= nil then
+			_result = _result:FindFirstChild("Floors")
+		end
+		params.FilterDescendantsInstances = { _result }
+		local origin, size = model:GetBoundingBox()
+		local _vector3 = Vector3.new(0, -1, 0)
+		local _arg0 = size.Y * 2
+		local direction = _vector3 * _arg0
+		local result = Workspace:Raycast(origin.Position, direction, params)
+		if not result then
+			return false
+		end
+		local resName = result.Instance.Name
+		local _result_1 = player:FindFirstChild("unlockedZones")
+		if _result_1 ~= nil then
+			_result_1 = _result_1:FindFirstChild(resName)
+		end
+		local val = _result_1
+		return val and val.Value
+	end
 	function Plot:playerCanBuild(player)
 		return self.owner == player
 	end
@@ -86,6 +129,9 @@ do
 	end
 	function Plot:getCenter()
 		return self.centerVector
+	end
+	function Plot:getZeroHeight()
+		return self.floorZeroHeight
 	end
 	Plot.size = 600
 end

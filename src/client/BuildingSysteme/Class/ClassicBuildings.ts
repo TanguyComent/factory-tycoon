@@ -1,6 +1,6 @@
 import { RunService, Workspace } from "@rbxts/services";
 import { Building } from "./Building";
-import { floorSize, gridSize, plotDefaultHeight } from "../Settings";
+import { floorSize, gridSize } from "../Settings";
 import { currentFloor } from "../Params";
 
 export class ClassicBuilding extends Building {
@@ -51,7 +51,7 @@ export class ClassicBuilding extends Building {
         this.isMoving = false
     }
 
-    updateTickPosition(): void {
+    updateTickPosition(plotDefaultHeight: number): void {
         const result = Workspace.Raycast(this.mouse.UnitRay.Origin, this.mouse.UnitRay.Direction.mul(1000), this.rayParams)
 
         if(!result)

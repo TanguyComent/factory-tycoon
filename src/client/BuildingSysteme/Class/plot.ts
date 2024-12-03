@@ -37,6 +37,7 @@ export class Plot{
     private centerVector
     private owner
     private floorZeroHeight
+    private model
 
     constructor(owner: Player){
         this.owner = owner
@@ -52,12 +53,19 @@ export class Plot{
             throw "No plot center finded, error"
         }
 
-        const plotModel = Workspace.FindFirstChild("plot" + this.id)
+        this.model = Workspace.FindFirstChild("plot" + this.id) as Model
 
-        if(plotModel && plotModel.IsA("Model")){
-            this.floorZeroHeight = 0
+        if(!this.model) throw "No plot model finded"
+
+        const plotPart = this.model?.FindFirstChild("DefaultStuffs")?.FindFirstChild("Floors")?.FindFirstChild("00")
+
+        if(plotPart && plotPart.IsA("Part")){
+            const plotDefaultY = plotPart.Position.Y
+            const halfY = plotPart.Size.Y / 2
+
+            this.floorZeroHeight = plotDefaultY + halfY
         }else{
-            throw "No plot model finded, error"
+            throw "No plot part finded"
         }
 
     }
@@ -81,7 +89,23 @@ export class Plot{
 
         // If both opposites corners are on the plot, the box is in the plot
         return this.isVectorInPLot(positiveCorner) && this.isVectorInPLot(negativeCorner)
-    }   
+    }
+
+    public isModelInAvaiblePlot(model: Model, player: Player){
+        if(!this.playerCanBuild(player) || !this.isModelInPlot(model)) return false
+        const params = new RaycastParams()
+        params.FilterType = Enum.RaycastFilterType.Include
+        params.FilterDescendantsInstances = [this.model.FindFirstChild("DefaultStuffs")?.FindFirstChild("Floors") as Folder]
+
+        const [origin, size] = model.GetBoundingBox()
+        const direction = new Vector3(0, -1, 0).mul(size.Y * 2)
+        const result = Workspace.Raycast(origin.Position, direction, params)
+
+        if(!result) return false
+        const resName = result.Instance.Name
+        const val =  player.FindFirstChild("unlockedZones")?.FindFirstChild(resName) as BoolValue
+        return (val && val.Value)
+    }
 
     public playerCanBuild(player: Player){
         return this.owner === player
@@ -95,6 +119,10 @@ export class Plot{
 
     public getCenter(){
         return this.centerVector
+    }
+
+    public getZeroHeight(){
+        return this.floorZeroHeight
     }
 
 }

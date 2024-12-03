@@ -5,7 +5,7 @@ local Players = _services.Players
 local ReplicatedStorage = _services.ReplicatedStorage
 local RunService = _services.RunService
 local Workspace = _services.Workspace
-local Plot = TS.import(script, game:GetService("ReplicatedStorage"), "TS", "plot").Plot
+local Plot = TS.import(script, script.Parent, "Class", "plot").Plot
 local ClassicBuilding = TS.import(script, script.Parent, "Class", "ClassicBuildings").ClassicBuilding
 -- Constants
 local P = Players.LocalPlayer
@@ -25,6 +25,11 @@ if _result_1 ~= nil then
 	_result_1 = _result_1:FindFirstChild("BUILD GUI")
 end
 local buildGui = _result_1
+local _result_2 = ReplicatedStorage:FindFirstChild("RemoteFunctions")
+if _result_2 ~= nil then
+	_result_2 = _result_2:FindFirstChild("AskForBuildRequest")
+end
+local buildOnServerSide = _result_2
 if not buildButton then
 	error("ERROR : Build button not finded")
 end
@@ -38,14 +43,14 @@ local highlight = Instance.new("Highlight")
 highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 highlight.Enabled = false
 --Building Pointer
-local _result_2 = ReplicatedStorage:FindFirstChild("Constructions")
-if _result_2 ~= nil then
-	_result_2 = _result_2:FindFirstChild("walls")
-	if _result_2 ~= nil then
-		_result_2 = _result_2:FindFirstChild("Murs gris")
+local _result_3 = ReplicatedStorage:FindFirstChild("Constructions")
+if _result_3 ~= nil then
+	_result_3 = _result_3:FindFirstChild("walls")
+	if _result_3 ~= nil then
+		_result_3 = _result_3:FindFirstChild("Murs gris")
 	end
 end
-local defaultConstruction = _result_2
+local defaultConstruction = _result_3
 if not defaultConstruction then
 	error("ERROR : No default constructions finded")
 end
@@ -97,7 +102,7 @@ local function switchBuildMode()
 	if inBuildMode then
 		-- The player is now building
 		RunService:BindToRenderStep("Build", 600, function()
-			buildingPointer:updateTickPosition()
+			buildingPointer:updateTickPosition(plot:getZeroHeight())
 			updateHighlightColor()
 		end)
 	else
@@ -105,19 +110,23 @@ local function switchBuildMode()
 		RunService:UnbindFromRenderStep("Build")
 	end
 end
+local function sendBuildRequest()
+	local toBuild = constructionValue.Value
+	local _orientation = buildingPointer.orientation
+	local _position = buildingPointer.position
+	buildOnServerSide:InvokeServer(toBuild, _orientation + _position)
+end
 -- Plot constructor is already yeilding until the player chose a plot
 plot = Plot.new(P)
 --Connections 
 buildButton.Activated:Connect(switchBuildMode)
-P:GetMouse().Button1Down:Connect(function()
-	buildingPointer:build(plot)
-end)
+P:GetMouse().Button1Down:Connect(sendBuildRequest)
 constructionValue.Changed:Connect(function(newValue)
-	local _result_3 = newValue
-	if _result_3 ~= nil then
-		_result_3 = _result_3:IsA("Model")
+	local _result_4 = newValue
+	if _result_4 ~= nil then
+		_result_4 = _result_4:IsA("Model")
 	end
-	if not _result_3 then
+	if not _result_4 then
 		error("New construction value isnt a model.")
 	end
 	updateBuildingPointer(newValue)

@@ -1,5 +1,5 @@
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services"
-import { Plot } from "../../shared/plot"
+import { Plot } from "./Class/plot"
 import { Building } from "./Class/Building"
 import { ClassicBuilding } from "./Class/ClassicBuildings"
 
@@ -7,6 +7,7 @@ import { ClassicBuilding } from "./Class/ClassicBuildings"
 const P = Players.LocalPlayer
 const buildButton = P.WaitForChild("PlayerGui")?.WaitForChild("Interface")?.WaitForChild("TopBar")?.WaitForChild("BuildButton") as GuiButton
 const buildGui = P.FindFirstChild("PlayerGui")?.FindFirstChild("BUILD GUI") as ScreenGui
+const buildOnServerSide = ReplicatedStorage.FindFirstChild("RemoteFunctions")?.FindFirstChild("AskForBuildRequest") as RemoteFunction
 
 if (!buildButton) throw "ERROR : Build button not finded"
 if (!buildGui) throw "ERROR : No build gui finded"
@@ -84,7 +85,7 @@ function switchBuildMode(){
     if(inBuildMode){
         // The player is now building
         RunService.BindToRenderStep("Build", 600, function(){
-            buildingPointer.updateTickPosition()
+            buildingPointer.updateTickPosition(plot.getZeroHeight())
             updateHighlightColor()
         })
     }else{
@@ -93,16 +94,19 @@ function switchBuildMode(){
     }
 }
 
+function sendBuildRequest(){
+    const toBuild = constructionValue.Value
+    buildOnServerSide.InvokeServer(toBuild, buildingPointer.orientation.add(buildingPointer.position as Vector3))
+}
+
 // Plot constructor is already yeilding until the player chose a plot
 const plot = new Plot(P)
 
-
-
 //Connections 
 buildButton.Activated.Connect(switchBuildMode)
-P.GetMouse().Button1Down.Connect(function(){
-    buildingPointer.build(plot)
-})
+
+P.GetMouse().Button1Down.Connect(sendBuildRequest)
+
 constructionValue.Changed.Connect(function(newValue){
     if(!newValue?.IsA("Model")){
         throw "New construction value isnt a model."

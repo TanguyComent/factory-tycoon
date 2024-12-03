@@ -7,7 +7,6 @@ local Building = TS.import(script, script.Parent, "Building").Building
 local _Settings = TS.import(script, script.Parent.Parent, "Settings")
 local floorSize = _Settings.floorSize
 local gridSize = _Settings.gridSize
-local plotDefaultHeight = _Settings.plotDefaultHeight
 local currentFloor = TS.import(script, script.Parent.Parent, "Params").currentFloor
 local ClassicBuilding
 do
@@ -61,7 +60,7 @@ do
 		self.model:MoveTo(goal)
 		self.isMoving = false
 	end
-	function ClassicBuilding:updateTickPosition()
+	function ClassicBuilding:updateTickPosition(plotDefaultHeight)
 		local result = Workspace:Raycast(self.mouse.UnitRay.Origin, self.mouse.UnitRay.Direction * 1000, self.rayParams)
 		if not result then
 			return nil

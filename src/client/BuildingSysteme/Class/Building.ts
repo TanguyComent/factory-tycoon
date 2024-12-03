@@ -1,8 +1,6 @@
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
 import { rotateDuration, rotateForce } from "../Settings";
-import { Plot } from "shared/plot";
-
-const buildOnServerSide = ReplicatedStorage.FindFirstChild("RemoteFunctions")?.FindFirstChild("AskForBuildRequest") as RemoteFunction
+import { Plot } from "client/BuildingSysteme/Class/plot";
 
 export abstract class Building {
     protected model
@@ -10,18 +8,19 @@ export abstract class Building {
     protected isMoving = false
     private isRotating = false
     abstract position: Vector3 | undefined
+    public orientation: CFrame
 
     constructor(model: Model){
         this.model = model
         this.player = Players.LocalPlayer;
+        this.orientation = model.GetPivot().Rotation
         for(let child of this.model.GetChildren()){
             if(child.IsA("Part")) child.CanCollide = false
         }
     }
 
     canBePlacedHere(plot: Plot){
-        print("isModelInPlot : " + plot.isModelInPlot(this.model) + "; isFree : " + this.isFree())
-        return !this.isInMovement() && plot.isModelInPlot(this.model) && plot.playerCanBuild(this.player) && this.isFree()
+        return !this.isInMovement() && plot.isModelInPlot(this.model) && plot.playerCanBuild(this.player) && this.isFree() && plot.isModelInAvaiblePlot(this.model, this.player)
     }
 
     rotate(){
@@ -37,6 +36,7 @@ export abstract class Building {
         }
 
         this.model.MoveTo(goal)
+        this.orientation = this.model.GetPivot().Rotation
         this.isRotating = false
     }
 
@@ -57,13 +57,8 @@ export abstract class Building {
         return res.size() === 0
     }
 
-    build(plot: Plot){
-        if(!this.canBePlacedHere(plot)) return
-        buildOnServerSide.InvokeServer(this.model, this.model.GetPivot())
-    }
-
     // Abstracts methodes
-    abstract updateTickPosition(): void
+    abstract updateTickPosition(defaultPlotHeight: number): void
 
     // Getters
     Model(){
