@@ -85,30 +85,44 @@ export class Plot{
 
         // The y position doesn't matter
         const positiveCorner = position.add(new Vector3(half.X, 0, half.Z))
-        const negativeCorner = position.add(new Vector3(-half.X, 0, -half.Z))
+        const negativeCorner = position.sub(new Vector3(half.X, 0, half.Z))
 
         // If both opposites corners are on the plot, the box is in the plot
         return this.isVectorInPLot(positiveCorner) && this.isVectorInPLot(negativeCorner)
     }
 
     public isModelInAvaiblePlot(model: Model, player: Player){
-        if(!this.playerCanBuild(player) || !this.isModelInPlot(model)) return false
+        if(!this.playerCanBuild(player)) return false
         const params = new RaycastParams()
         params.FilterType = Enum.RaycastFilterType.Include
         params.FilterDescendantsInstances = [this.model.FindFirstChild("DefaultStuffs")?.FindFirstChild("Floors") as Folder]
 
         const [origin, size] = model.GetBoundingBox()
-        const direction = new Vector3(0, -1, 0).mul(size.Y * 2)
-        const result = Workspace.Raycast(origin.Position, direction, params)
+        const half = size.div(2)
 
-        if(!result) return false
-        const resName = result.Instance.Name
-        const val =  player.FindFirstChild("unlockedZones")?.FindFirstChild(resName) as BoolValue
-        return (val && val.Value)
+        const direction = new Vector3(0, -1, 0).mul(size.Y * 2)
+
+        const origin1 = origin.Position.add(new Vector3(half.X, 0, half.Z))
+        const origin2 = origin.Position.sub(new Vector3(half.X, 0, half.Z))
+
+        const result1 = Workspace.Raycast(origin1, direction, params)?.Instance
+        const result2 = Workspace.Raycast(origin2, direction, params)?.Instance
+
+        if(!result1 || ! result2){
+            return false
+        }
+        
+        const resName1 = result1.Name
+        const resName2 = result2?.Name
+
+        const val1 = player.FindFirstChild("unlockedZones")?.FindFirstChild(resName1) as BoolValue
+        const val2 = player.FindFirstChild("unlockedZones")?.FindFirstChild(resName2) as BoolValue
+
+        return (val1 && val2 && val1.Value && val2.Value)
     }
 
     public playerCanBuild(player: Player){
-        return this.owner === player
+        return this.owner.UserId === player.UserId
     }
 
     // Getters

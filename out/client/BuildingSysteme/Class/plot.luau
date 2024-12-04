@@ -89,13 +89,13 @@ do
 		-- The y position doesn't matter
 		local _vector3 = Vector3.new(half.X, 0, half.Z)
 		local positiveCorner = position + _vector3
-		local _vector3_1 = Vector3.new(-half.X, 0, -half.Z)
-		local negativeCorner = position + _vector3_1
+		local _vector3_1 = Vector3.new(half.X, 0, half.Z)
+		local negativeCorner = position - _vector3_1
 		-- If both opposites corners are on the plot, the box is in the plot
 		return self:isVectorInPLot(positiveCorner) and self:isVectorInPLot(negativeCorner)
 	end
 	function Plot:isModelInAvaiblePlot(model, player)
-		if not self:playerCanBuild(player) or not self:isModelInPlot(model) then
+		if not self:playerCanBuild(player) then
 			return false
 		end
 		local params = RaycastParams.new()
@@ -106,23 +106,49 @@ do
 		end
 		params.FilterDescendantsInstances = { _result }
 		local origin, size = model:GetBoundingBox()
+		local half = size / 2
 		local _vector3 = Vector3.new(0, -1, 0)
 		local _arg0 = size.Y * 2
 		local direction = _vector3 * _arg0
-		local result = Workspace:Raycast(origin.Position, direction, params)
-		if not result then
+		local _position = origin.Position
+		local _vector3_1 = Vector3.new(half.X, 0, half.Z)
+		local origin1 = _position + _vector3_1
+		local _position_1 = origin.Position
+		local _vector3_2 = Vector3.new(half.X, 0, half.Z)
+		local origin2 = _position_1 - _vector3_2
+		local _result1 = Workspace:Raycast(origin1, direction, params)
+		if _result1 ~= nil then
+			_result1 = _result1.Instance
+		end
+		local result1 = _result1
+		local _result2 = Workspace:Raycast(origin2, direction, params)
+		if _result2 ~= nil then
+			_result2 = _result2.Instance
+		end
+		local result2 = _result2
+		if not result1 or not result2 then
 			return false
 		end
-		local resName = result.Instance.Name
+		local resName1 = result1.Name
+		local _resName2 = result2
+		if _resName2 ~= nil then
+			_resName2 = _resName2.Name
+		end
+		local resName2 = _resName2
 		local _result_1 = player:FindFirstChild("unlockedZones")
 		if _result_1 ~= nil then
-			_result_1 = _result_1:FindFirstChild(resName)
+			_result_1 = _result_1:FindFirstChild(resName1)
 		end
-		local val = _result_1
-		return val and val.Value
+		local val1 = _result_1
+		local _result_2 = player:FindFirstChild("unlockedZones")
+		if _result_2 ~= nil then
+			_result_2 = _result_2:FindFirstChild(resName2)
+		end
+		local val2 = _result_2
+		return val1 and val2 and val1.Value and val2.Value
 	end
 	function Plot:playerCanBuild(player)
-		return self.owner == player
+		return self.owner.UserId == player.UserId
 	end
 	function Plot:getId()
 		return self.id
